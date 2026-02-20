@@ -26,15 +26,26 @@ class PostsList extends ConsumerWidget {
 
               return Card(
                 margin: const EdgeInsets.all(10),
+               
                 child: ListTile(
-                  title: Text(post.title),
-                  subtitle: Text(post.body),
+                  title: Text(
+                    post.title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  subtitle: Text(
+                    post.body,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               );
             },
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () =>
+            const Center(child: CircularProgressIndicator()),
         error: (error, stack) =>
             Center(child: Text("Error: $error")),
       ),
