@@ -1,54 +1,43 @@
 import 'package:flutter/material.dart';
-import 'package:posts_list/data/services/api_services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:posts_list/presentation/providers/apiservice_provider.dart';
 
-class PostsList extends StatefulWidget {
+class PostsList extends ConsumerWidget {
   const PostsList({super.key});
 
   @override
-  State<PostsList> createState() => _PostsListState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final postsAsync = ref.watch(postProvider);
 
-class _PostsListState extends State<PostsList> {
-  List postsList=[];
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    ApiService().fetchPosts();
-  }
-  @override
-  Widget build(BuildContext context) {
-    
     return Scaffold(
       appBar: AppBar(
-        title: Text("Posts List",style:TextStyle(color: Colors.white),),
+        title: const Text(
+          "Posts List",
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: Colors.black,
       ),
-        body: Column(
-            children: [
-              Expanded(
-                child: ListView.builder(
-                  itemCount: postsList.length,
-                  itemBuilder: (context,index){
-                    return Container(
-                     decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(18),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.08),
-                    blurRadius: 12,
-                    offset: const Offset(0, 6),
-                  ),
-                ],
-                            ),
-                    );
-                  },
-                  
-                  ),
-              )
-            ],
-        ),
+      body: postsAsync.when(
+        data: (posts) {
+          return ListView.builder(
+            itemCount: posts.length,
+            itemBuilder: (context, index) {
+              final post = posts[index];
+
+              return Card(
+                margin: const EdgeInsets.all(10),
+                child: ListTile(
+                  title: Text(post.title),
+                  subtitle: Text(post.body),
+                ),
+              );
+            },
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) =>
+            Center(child: Text("Error: $error")),
+      ),
     );
   }
 }
